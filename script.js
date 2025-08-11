@@ -1,8 +1,8 @@
-// — CONFIG: point to your local CSV in /assets —
+// — CONFIG: path to your CSV in /assets —
 const CSV_PATH = './assets/buttons.csv';
 
 window.addEventListener('DOMContentLoaded', () => {
-  // show splash, then home
+  // show splash for 2s, then home
   setTimeout(() => {
     document.getElementById('splash').classList.add('hidden');
     document.getElementById('home').classList.remove('hidden');
@@ -12,7 +12,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function loadButtons() {
   fetch(CSV_PATH)
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) throw new Error(`Couldn’t fetch ${CSV_PATH}: ${res.status}`);
+      return res.text();
+    })
     .then(csv => Papa.parse(csv, { header: true }).data)
     .then(rows => {
       const container = document.getElementById('buttons');
@@ -25,20 +28,26 @@ function loadButtons() {
         container.appendChild(btn);
       });
     })
-    .catch(err => console.error('Error loading CSV:', err));
+    .catch(err => {
+      console.error(err);
+      alert('Error loading buttons. Check console for details.');
+    });
 }
 
 let originalURL = '';
 function openForm(url) {
-  originalURL = url;
+  // resolve relative ↔ absolute
+  const resolved = new URL(url, window.location.href).href;
+  originalURL = resolved;
+
   const overlay = document.getElementById('formOverlay');
   const iframe  = document.getElementById('formFrame');
-  iframe.src    = url;
+  iframe.src    = resolved;
   overlay.classList.remove('hidden');
 
   iframe.onload = () => {
-    // if iframe has navigated away, assume submit and close
-    if (!iframe.src.includes(originalURL)) {
+    // if iframe has navigated away from original, close
+    if (iframe.src !== originalURL) {
       overlay.classList.add('hidden');
       iframe.src = '';
     }
