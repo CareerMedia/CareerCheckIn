@@ -23,30 +23,27 @@ function loadButtons() {
         const btn = document.createElement('div');
         btn.className = 'button';
         btn.textContent = r.ButtonName;
-        btn.dataset.url = r.EmbedURL;
         btn.addEventListener('click', () => openForm(r.EmbedURL));
         container.appendChild(btn);
       });
     })
     .catch(err => {
       console.error(err);
-      alert('Error loading buttons. Check console for details.');
+      alert('Error loading buttons. Check console.');
     });
 }
 
 let originalURL = '';
 function openForm(url) {
-  // resolve relative ↔ absolute
-  const resolved = new URL(url, window.location.href).href;
-  originalURL = resolved;
-
+  // Any URL will load in the iframe
+  originalURL = url;
   const overlay = document.getElementById('formOverlay');
   const iframe  = document.getElementById('formFrame');
-  iframe.src    = resolved;
+  iframe.src    = url;
   overlay.classList.remove('hidden');
 
+  // When iframe navigates away, assume done and close
   iframe.onload = () => {
-    // if iframe has navigated away from original, close
     if (iframe.src !== originalURL) {
       overlay.classList.add('hidden');
       iframe.src = '';
