@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSUN Career Center Check-In</title>
+  <link rel="stylesheet" href="stylesheet.css" />
+
+  <!-- PapaParse for CSV→JSON -->
+  <script src="https://unpkg.com/papaparse@5.3.1/papaparse.min.js"></script>
+</head>
+<body>
+  <!-- Splash screen -->
+  <div id="splash">
+    <h1>👋 Welcome to the CSUN Career Center</h1>
+  </div>
+
+  <!-- Home screen -->
+  <div id="home" class="hidden">
+    <div id="buttons"></div>
+  </div>
+
+  <!-- Form overlay -->
+  <div id="formOverlay" class="hidden">
+    <iframe id="formFrame" src="" frameborder="0"></iframe>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
