@@ -1,4 +1,5 @@
 ﻿ButtonName,EmbedURL
-Student,google.com
-Employer,yahoo.com
-Faculty,apple.com
+Student,https://google.com
+Employer,https://yahoo.com
+Faculty,https://apple.com
+
