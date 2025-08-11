@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CSUN Career Center Check-In</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Check-In Kiosk</title>
   <link rel="stylesheet" href="stylesheet.css" />
 
   <!-- PapaParse for CSV→JSON -->
   <script src="https://unpkg.com/papaparse@5.3.1/papaparse.min.js"></script>
 </head>
 <body>
-  <!-- splash screen -->
+  <!-- Splash -->
   <div id="splash">
-    <h1>Welcome to the CSUN Career Center</h1>
+    <h1>Welcome!</h1>
   </div>
 
-  <!-- home screen -->
+  <!-- Home Screen -->
   <div id="home" class="hidden">
     <div id="buttons"></div>
   </div>
 
-  <!-- form overlay -->
+  <!-- IFrame Overlay -->
   <div id="formOverlay" class="hidden">
     <iframe id="formFrame" src="" frameborder="0"></iframe>
   </div>
