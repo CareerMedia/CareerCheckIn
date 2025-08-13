@@ -24,17 +24,17 @@ body {
   --txt-invert: #ffffff;
 
   /* Ring layer controls */
-  --ring-thickness: 28px;  /* doubled thickness */
-  /* base radii (vmax so they track the longest side; large rings reach across diagonals) */
+  --ring-thickness: 48px;   /* 70% thicker than 28px */
+  /* Radii chosen so all rings are always visible on iPad (4:3) and beyond */
   --r1: 16vmax;
-  --r2: 28vmax;
-  --r3: 42vmax;
-  --r4: 58vmax;
-  --r5: 78vmax;
-  --r6: 140vmax;
-  --r7: 160vmax;   /* new */
-  --r8: 180vmax;   /* new */
-  --r9: 200vmax;   /* new - guarantees full coverage */
+  --r2: 26vmax;
+  --r3: 38vmax;
+  --r4: 52vmax;
+  --r5: 66vmax;
+  --r6: 80vmax;
+  --r7: 94vmax;
+  --r8: 108vmax;
+  --r9: 122vmax;  /* stays below ~125vmax diagonal on 4:3 so it's always visible */
 }
 
 /* Reduced motion */
@@ -136,15 +136,15 @@ body {
 }
 
 /* Tiny amplitude so rings never touch; delays create a traveling wave */
-@keyframes wave1 { 0% { --r1: 16vmax; } 50% { --r1: 17.1vmax; } 100% { --r1: 16vmax; } }
-@keyframes wave2 { 0% { --r2: 28vmax; } 50% { --r2: 29.1vmax; } 100% { --r2: 28vmax; } }
-@keyframes wave3 { 0% { --r3: 42vmax; } 50% { --r3: 43.1vmax; } 100% { --r3: 42vmax; } }
-@keyframes wave4 { 0% { --r4: 58vmax; } 50% { --r4: 59.1vmax; } 100% { --r4: 58vmax; } }
-@keyframes wave5 { 0% { --r5: 78vmax; } 50% { --r5: 79.1vmax; } 100% { --r5: 78vmax; } }
-@keyframes wave6 { 0% { --r6: 140vmax; } 50% { --r6: 141.2vmax; } 100% { --r6: 140vmax; } }
-@keyframes wave7 { 0% { --r7: 160vmax; } 50% { --r7: 161.3vmax; } 100% { --r7: 160vmax; } }
-@keyframes wave8 { 0% { --r8: 180vmax; } 50% { --r8: 181.4vmax; } 100% { --r8: 180vmax; } }
-@keyframes wave9 { 0% { --r9: 200vmax; } 50% { --r9: 201.5vmax; } 100% { --r9: 200vmax; } }
+@keyframes wave1 { 0% { --r1: 16vmax; } 50% { --r1: 17vmax; } 100% { --r1: 16vmax; } }
+@keyframes wave2 { 0% { --r2: 26vmax; } 50% { --r2: 27vmax; } 100% { --r2: 26vmax; } }
+@keyframes wave3 { 0% { --r3: 38vmax; } 50% { --r3: 39vmax; } 100% { --r3: 38vmax; } }
+@keyframes wave4 { 0% { --r4: 52vmax; } 50% { --r4: 53vmax; } 100% { --r4: 52vmax; } }
+@keyframes wave5 { 0% { --r5: 66vmax; } 50% { --r5: 67vmax; } 100% { --r5: 66vmax; } }
+@keyframes wave6 { 0% { --r6: 80vmax; } 50% { --r6: 81vmax; } 100% { --r6: 80vmax; } }
+@keyframes wave7 { 0% { --r7: 94vmax; } 50% { --r7: 95vmax; } 100% { --r7: 94vmax; } }
+@keyframes wave8 { 0% { --r8: 108vmax; } 50% { --r8: 109vmax; } 100% { --r8: 108vmax; } }
+@keyframes wave9 { 0% { --r9: 122vmax; } 50% { --r9: 123vmax; } 100% { --r9: 122vmax; } }
 
 /* ================================
    Home Layout (grid: centered content + bottom quote bar)
