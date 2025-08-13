@@ -2,13 +2,26 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #fff; }
 
-/* Layout */
-.site-header {
+/* Prevent background scroll when overlay is open */
+body.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}
+
+/* Centered home */
+.home {
+  min-height: 100svh;       /* small-viewport for iOS Safari */
+  min-height: 100dvh;       /* dynamic viewport */
+  min-height: 100vh;        /* fallback */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+  text-align: center;
 }
 .logo {
   width: 120px;
@@ -18,24 +31,15 @@ html, body { width: 100%; height: 100%; font-family: system-ui, -apple-system, S
   font-size: 1.8rem;
   font-weight: 700;
   color: #111;
-  text-align: center;
+  margin-top: 0.25rem;
 }
 
-/* Center all home page content */
-#home {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: calc(100% - 2rem);
-}
 .buttons {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   width: min(90%, 420px);
-  margin-top: 1rem;
+  margin-top: 0.75rem;
 }
 .button {
   padding: 1rem 1.25rem;
@@ -46,51 +50,12 @@ html, body { width: 100%; height: 100%; font-family: system-ui, -apple-system, S
   cursor: pointer;
   transition: transform 0.15s ease, background 0.15s ease;
   user-select: none;
+  background: #fff; color: #111;
 }
 .button:hover { transform: translateY(-1px); }
 .button:active { transform: translateY(0); }
-.button { background: #fff; color: #111; }
 .button:focus { outline: 3px solid rgba(210,32,48,0.35); outline-offset: 2px; }
 
-/* Overlay */
+/* Overlay fills screen; iframe fills overlay */
 .overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  z-index: 1000;
-}
-.overlay iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  border-radius: 0.75rem;
-  background: #fff;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-}
-@media (min-width: 640px) {
-  .overlay iframe { width: 92%; height: 92%; }
-}
-
-/* Close button */
-.overlay-close {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  font-size: 2rem;
-  line-height: 1;
-  width: 44px; height: 44px;
-  border-radius: 999px;
-  border: 2px solid #fff;
-  background: rgba(0,0,0,0.4);
-  color: #fff;
-  cursor: pointer;
-  z-index: 1001;
-}
-.overlay-close:hover { background: rgba(0,0,0,0.55); }
-.overlay-close:focus { outline: 3px solid rgba(255,255,255,0.7); outline-offset: 3px; }
-
-.hidden { display: none !important; }
+  posi
