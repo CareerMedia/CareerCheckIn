@@ -55,24 +55,27 @@ body {
   padding: max(8px, env(safe-area-inset-top)) 16px max(8px, env(safe-area-inset-bottom));
 }
 
-/* Center group: logo + title + buttons (VERTICAL stack) */
+/* Center group: logo + title + buttons
+   Use GRID so children always stack vertically, no matter what. */
 .home-center {
-  display: flex;
-  flex-direction: column;           /* <<< critical fix */
-  align-items: center;
-  justify-content: center;          /* vertical centering within row */
-  gap: 8px;                         /* tighten spacing between the three items */
+  display: grid !important;
+  grid-auto-flow: row !important;   /* force vertical flow */
+  justify-items: center;            /* horizontal center of children */
+  align-content: center;            /* vertical center of the whole stack */
+  row-gap: 6px;                     /* tight spacing between logo/title/buttons */
+
   width: min(520px, 92vw);
   margin: 0 auto;
   text-align: center;
 }
 
-/* Logo + title */
+/* Logo + title (remove default margins) */
 .logo {
   width: clamp(92px, 12vw, 120px);
   height: auto;
   filter: drop-shadow(0 6px 14px rgba(0,0,0,.25));
-  margin: 0;                        /* prevent default spacing creep */
+  margin: 0 !important;
+  display: block;
 }
 .title {
   color: #ffffff;
@@ -80,7 +83,7 @@ body {
   letter-spacing: .2px;
   text-shadow: 0 2px 8px rgba(0,0,0,.22);
   font-size: clamp(1.6rem, 3.6vw, 2.1rem);
-  margin: 0;                        /* remove h1 default margins */
+  margin: 0 !important;
 }
 
 /* ================================
@@ -91,7 +94,7 @@ body {
   flex-direction: column;
   gap: 10px;                        /* spacing between individual buttons */
   width: 100%;
-  margin: 0;                        /* keep tight to title */
+  margin: 0 !important;             /* hug the title */
 }
 .button {
   -webkit-tap-highlight-color: transparent;
@@ -150,8 +153,8 @@ body {
 .quote-bar {
   background: #ffffff;
   border-top: 1px solid rgba(0,0,0,0.06);
-  /* padding: top right bottom left — map safe areas to correct sides */
-  padding: 10px max(16px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  padding: 10px max(16px, env(safe-area-inset-right))
+           10px max(16px, env(safe-area-inset-left));
   box-shadow: 0 -8px 18px rgba(0,0,0,0.08);
 }
 .quote-inner {
@@ -220,7 +223,7 @@ body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
    Height safety for very short contexts (Split View)
 =============================== */
 @media (max-height: 780px) {
-  .home-center { gap: 6px; }
+  .home-center { row-gap: 5px; }
   .buttons { gap: 8px; }
   .title { font-size: clamp(1.45rem, 3.2vw, 1.9rem); }
 }
