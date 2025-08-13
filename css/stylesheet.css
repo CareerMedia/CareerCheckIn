@@ -2,6 +2,9 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #fff; }
 
+/* Never allow page scroll on the home screen */
+html, body { overflow: hidden; }
+
 /* Prevent background scroll when overlay is open */
 body.no-scroll {
   overflow: hidden;
@@ -10,14 +13,14 @@ body.no-scroll {
   width: 100%;
 }
 
-/* Home layout (iPad first) */
+/* Home: exact viewport height; grid keeps quote pinned at bottom */
 .home {
-  min-height: 100svh;       /* iOS small viewport */
-  min-height: 100dvh;       /* modern viewport */
-  min-height: 100vh;        /* fallback */
-  display: flex;
-  flex-direction: column;
-  padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+  height: 100svh;           /* iPad-friendly */
+  height: 100dvh;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;  /* centered content + bottom quote */
+  padding: max(8px, env(safe-area-inset-top)) 16px max(8px, env(safe-area-inset-bottom));
 }
 
 /* Center group */
@@ -25,37 +28,38 @@ body.no-scroll {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;  /* vertical center within available space */
-  gap: 0.75rem;
+  justify-content: center;    /* true vertical centering within row */
+  gap: 0.6rem;
   text-align: center;
-  flex: 1 1 auto;           /* take remaining height to center content */
+  min-height: 0;              /* allow shrinking if needed */
 }
 
+/* Logo + title */
 .logo {
-  width: 120px;
+  width: clamp(84px, 12vw, 120px);
   height: auto;
 }
 .title {
-  font-size: 1.8rem;
+  font-size: clamp(1.4rem, 3.5vw, 1.8rem);
   font-weight: 700;
   color: #111;
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
 }
 
 /* Buttons */
 .buttons {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  width: min(90%, 420px);
-  margin-top: 0.75rem;
+  gap: clamp(0.5rem, 2.2vw, 1rem);
+  width: min(92%, 420px);
+  margin-top: clamp(0.4rem, 1.5vw, 0.75rem);
 }
 .button {
-  padding: 1rem 1.25rem;
+  padding: clamp(0.75rem, 2.6vw, 1rem) clamp(1rem, 3vw, 1.25rem);
   text-align: center;
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 3.2vw, 1.25rem);
   border: 2px solid #d22030; /* CSUN red */
-  border-radius: 0.75rem;
+  border-radius: 12px;
   cursor: pointer;
   transition: transform 0.15s ease, background 0.15s ease;
   user-select: none;
@@ -65,26 +69,27 @@ body.no-scroll {
 .button:active { transform: translateY(0); }
 .button:focus { outline: 3px solid rgba(210,32,48,0.35); outline-offset: 2px; }
 
-/* Quote of the Day pinned to bottom */
+/* Quote of the Day pinned to bottom row, compact so it always fits */
 .quote {
-  padding: 1rem 0.5rem;
+  padding: 8px 6px;
   text-align: center;
   color: #333;
   border-top: 1px solid #eee;
+  min-height: 0;
 }
 .quote-title {
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2.6vw, 1rem);
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #555;
-  margin-bottom: 0.25rem;
+  margin-bottom: 2px;
 }
 .quote-text {
-  font-size: 0.95rem;
-  line-height: 1.4;
+  font-size: clamp(0.85rem, 2.6vw, 0.95rem);
+  line-height: 1.3;
 }
 
-/* Overlay: dim background, center popup with visible edges */
+/* Overlay dims background; popup with visible edges on iPad */
 .overlay {
   position: fixed;
   inset: 0;
@@ -95,20 +100,18 @@ body.no-scroll {
   z-index: 1000;
 }
 
-/* Popup: visible edges on iPad; iframe fills it fully */
+/* Popup box; iframe fills it completely */
 .popup {
   width: 94vw;
-  height: 94svh;             /* iOS small viewport */
-  height: 94dvh;             /* modern viewport */
-  height: 94vh;              /* fallback */
+  height: 94svh;
+  height: 94dvh;
+  height: 94vh;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.35);
   position: relative;
-  overflow: hidden;          /* so iframe corners follow radius */
+  overflow: hidden;
 }
-
-/* Full-bleed iframe inside popup */
 .popup iframe {
   display: block;
   width: 100%;
@@ -116,7 +119,7 @@ body.no-scroll {
   border: 0;
 }
 
-/* Close button (inside popup corner) */
+/* Close button */
 .overlay-close {
   position: absolute;
   top: 8px;
@@ -135,3 +138,12 @@ body.no-scroll {
 .overlay-close:focus { outline: 3px solid rgba(255,255,255,0.7); outline-offset: 3px; }
 
 .hidden { display: none !important; }
+
+/* Extra compression for shorter heights (e.g., Split View or landscape) */
+@media (max-height: 780px) {
+  .logo { width: clamp(72px, 10vw, 100px); }
+  .title { font-size: clamp(1.2rem, 3vw, 1.6rem); }
+  .buttons { gap: 0.55rem; }
+  .button { font-size: clamp(0.95rem, 2.8vw, 1.1rem); padding: 0.75rem 1rem; }
+  .quote { padding: 6px 4px; }
+}
