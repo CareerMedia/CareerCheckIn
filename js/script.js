@@ -1,33 +1,35 @@
 // CONFIG
 const CSV_PATH = './assets/buttons.csv';
 
+// State
 const state = {
   overlayOpen: false,
   scrollY: 0,
   closeOnContains: null,
-  animating: false,
 };
 
-function $id(id){ return document.getElementById(id); }
+function $(id){ return document.getElementById(id); }
 
 window.addEventListener('DOMContentLoaded', () => {
   loadButtons();
   installQuoteOfTheDay();
-
-  $id('closeOverlay').addEventListener('click', () => closeOverlay({ animated: true }));
+  $('closeOverlay').addEventListener('click', () => closeOverlay());
 
   // Optional: embedded pages can close themselves
   window.addEventListener('message', (event) => {
     try {
       if (event && event.data && (event.data.type === 'kiosk:done' || event.data === 'kiosk:done')) {
-        closeOverlay({ animated: true });
+        closeOverlay();
       }
     } catch(e) { /* ignore */ }
   });
+
+  // Start occasional glare effect
+  startRandomGlare();
 });
 
 /* ----------------------------
-   Buttons & CSV
+   Buttons from CSV
 ----------------------------- */
 function loadButtons() {
   fetch(CSV_PATH)
@@ -40,14 +42,14 @@ function loadButtons() {
       const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
       const rows = parsed.data.map(normalizeRow).filter(r => r.ButtonName && r.EmbedURL);
 
-      const container = $id('buttons');
+      const container = $('buttons');
       container.innerHTML = '';
       rows.forEach(r => {
         const btn = document.createElement('button');
         btn.className = 'button';
         btn.type = 'button';
         btn.textContent = r.ButtonName;
-        btn.addEventListener('click', () => openOverlay(r.EmbedURL, r.CloseOnUrlContains, { animated: true }));
+        btn.addEventListener('click', () => openOverlay(r.EmbedURL, r.CloseOnUrlContains));
         container.appendChild(btn);
       });
     })
@@ -64,112 +66,62 @@ function normalizeRow(row) {
 }
 
 /* ----------------------------
-   Overlay open/close with page wipe
+   Overlay open/close (no page wipe)
 ----------------------------- */
-function openOverlay(url, closeOnContains = '', { animated = true } = {}) {
-  if (state.animating || state.overlayOpen) return;
-  state.animating = true;
+function openOverlay(url, closeOnContains = '') {
+  const overlay = $('formOverlay');
+  const iframe  = $('formFrame');
 
-  const overlay = $id('formOverlay');
-  const iframe  = $id('formFrame');
-  const wipe    = $id('wipe');
   const resolved = new URL(url, window.location.href).href;
 
-  // Lock scroll behind popup
+  // Lock background scroll (iPad friendly)
   state.scrollY = window.scrollY || document.documentElement.scrollTop || 0;
   document.body.classList.add('no-scroll');
   document.body.style.top = `-${state.scrollY}px`;
 
+  state.overlayOpen = true;
   state.closeOnContains = closeOnContains || '';
 
-  // Prepare
-  iframe.removeAttribute('src');
+  // Show overlay then set iframe
   overlay.classList.remove('hidden');
-  overlay.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(() => overlay.classList.add('active'));
 
-  const startOverlay = () => {
-    overlay.classList.add('active');
-    iframe.onload = () => {
-      try {
-        const currentSrc = iframe.src;
-        if (state.closeOnContains && currentSrc.includes(state.closeOnContains)) {
-          closeOverlay({ animated: true });
-        }
-      } catch(e){ /* cross-origin safe */ }
-    };
-    iframe.src = resolved;
-    state.overlayOpen = true;
-    state.animating = false;
+  iframe.onload = () => {
+    try {
+      const currentSrc = iframe.src;
+      if (state.closeOnContains && currentSrc.includes(state.closeOnContains)) {
+        closeOverlay();
+      }
+    } catch(e) { /* cross-origin fine */ }
   };
-
-  if (animated) {
-    wipe.classList.remove('out');
-    wipe.classList.add('in');
-    wipe.addEventListener('animationend', function onEnd() {
-      wipe.removeEventListener('animationend', onEnd);
-      // Immediately run reverse wipe to reveal popup with subtle delay overlap
-      wipe.classList.remove('in');
-      wipe.classList.add('out');
-      startOverlay();
-    }, { once: true });
-  } else {
-    startOverlay();
-    state.animating = false;
-  }
+  iframe.src = resolved;
 }
 
-function closeOverlay({ animated = true } = {}) {
-  if (state.animating || !state.overlayOpen) return;
-  state.animating = true;
+function closeOverlay() {
+  if (!state.overlayOpen) return;
 
-  const overlay = $id('formOverlay');
-  const iframe  = $id('formFrame');
-  const wipe    = $id('wipe');
+  const overlay = $('formOverlay');
+  const iframe  = $('formFrame');
 
-  const finishClose = () => {
-    overlay.classList.remove('active');
+  overlay.classList.remove('active');
+  setTimeout(() => {
     overlay.classList.add('hidden');
-    overlay.setAttribute('aria-hidden', 'true');
     iframe.removeAttribute('src');
 
-    // Restore scroll
     document.body.classList.remove('no-scroll');
     document.body.style.top = '';
     window.scrollTo(0, state.scrollY || 0);
 
     state.overlayOpen = false;
     state.closeOnContains = null;
-    state.animating = false;
-  };
-
-  if (animated) {
-    // Play wipe in reverse (from current view up)
-    wipe.classList.remove('in');
-    wipe.classList.add('in'); // ensure restart
-    void wipe.offsetWidth;    // reflow to restart animation
-    wipe.classList.remove('out');
-    wipe.classList.add('in');
-
-    // Fade out overlay while wipe covers
-    overlay.classList.remove('active');
-
-    wipe.addEventListener('animationend', function onEnd() {
-      wipe.removeEventListener('animationend', onEnd);
-      // Push wipe up to reveal home again
-      wipe.classList.remove('in');
-      wipe.classList.add('out');
-      finishClose();
-    }, { once: true });
-  } else {
-    finishClose();
-  }
+  }, 300); // match CSS transition
 }
 
 /* ----------------------------
-   Quote of the Day (deterministic, offline-safe)
+   Quote of the Day
 ----------------------------- */
 function installQuoteOfTheDay() {
-  const el = $id('quoteText');
+  const el = $('quoteText');
   const fallback = getLocalQuoteOfDay();
 
   fetch('./assets/quotes.json', { cache: 'no-store' })
@@ -204,10 +156,25 @@ function pickByDate(list) {
   const idx = Math.abs(hash(seed.toString())) % list.length;
   return list[idx];
 }
-function hash(str) {
-  let h = 5381; for (let i=0;i<str.length;i++) h = ((h<<5)+h) + str.charCodeAt(i); return h;
-}
-function formatQuote(q) {
-  if (!q) return "Keep going. You're doing great.";
-  return q.author ? `“${q.text}” — ${q.author}` : `“${q.text}”`;
+function hash(str) { let h = 5381; for (let i=0;i<str.length;i++) h=((h<<5)+h)+str.charCodeAt(i); return h; }
+function formatQuote(q) { return q?.author ? `“${q.text}” — ${q.author}` : `“${q.text}”`; }
+
+/* ----------------------------
+   Random button glare
+----------------------------- */
+function startRandomGlare() {
+  const min = 8000, max = 16000; // 8–16s
+  function schedule() {
+    const delay = Math.floor(Math.random() * (max - min + 1)) + min;
+    setTimeout(() => {
+      const btns = Array.from(document.querySelectorAll('.button'));
+      if (btns.length) {
+        const target = btns[Math.floor(Math.random() * btns.length)];
+        target.classList.add('shine');
+        setTimeout(() => target.classList.remove('shine'), 1300);
+      }
+      schedule();
+    }, delay);
+  }
+  schedule();
 }
