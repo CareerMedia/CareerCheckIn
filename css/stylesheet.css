@@ -8,7 +8,7 @@ html, body { width: 100%; height: 100%; font-family: system-ui, -apple-system, S
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 1.25rem 1rem 0.5rem;
+  padding: 1rem;
 }
 .logo {
   width: 120px;
@@ -21,13 +21,14 @@ html, body { width: 100%; height: 100%; font-family: system-ui, -apple-system, S
   text-align: center;
 }
 
-/* Buttons */
+/* Center all home page content */
 #home {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   width: 100%;
-  height: calc(100% - 140px); /* leave room for header */
+  height: calc(100% - 2rem);
 }
 .buttons {
   display: flex;
@@ -70,7 +71,6 @@ html, body { width: 100%; height: 100%; font-family: system-ui, -apple-system, S
   background: #fff;
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
 }
-/* Make iframe inset a bit on larger screens */
 @media (min-width: 640px) {
   .overlay iframe { width: 92%; height: 92%; }
 }
