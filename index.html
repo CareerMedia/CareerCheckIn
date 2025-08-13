@@ -2,19 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Check-In Kiosk</title>
   <link rel="stylesheet" href="css/stylesheet.css" />
   <script src="https://unpkg.com/papaparse@5.3.1/papaparse.min.js"></script>
 </head>
 <body>
-  <!-- Home -->
-  <header class="site-header">
-    <img src="assets/logo.svg" alt="Career Center logo" class="logo" />
+  <!-- Home (centered) -->
+  <main id="home" class="home">
+    <img
+      id="logo"
+      src="./assets/logo.svg"
+      alt="Career Center logo"
+      class="logo"
+      onerror="this.onerror=null; this.src='./assets/logo.png';"
+    />
     <h1 class="title">Welcome to the Career Center</h1>
-  </header>
-
-  <main id="home">
     <div id="buttons" class="buttons"></div>
   </main>
 
@@ -26,4 +30,4 @@
 
   <script src="js/script.js"></script>
 </body>
-</html>
+</h
