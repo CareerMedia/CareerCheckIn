@@ -10,19 +10,27 @@ body.no-scroll {
   width: 100%;
 }
 
-/* Centered home */
+/* Home layout (iPad first) */
 .home {
-  min-height: 100svh;       /* small-viewport for iOS Safari */
-  min-height: 100dvh;       /* dynamic viewport */
+  min-height: 100svh;       /* iOS small viewport */
+  min-height: 100dvh;       /* modern viewport */
   min-height: 100vh;        /* fallback */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
   padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
-  text-align: center;
 }
+
+/* Center group */
+.home-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;  /* vertical center within available space */
+  gap: 0.75rem;
+  text-align: center;
+  flex: 1 1 auto;           /* take remaining height to center content */
+}
+
 .logo {
   width: 120px;
   height: auto;
@@ -34,6 +42,7 @@ body.no-scroll {
   margin-top: 0.25rem;
 }
 
+/* Buttons */
 .buttons {
   display: flex;
   flex-direction: column;
@@ -56,44 +65,62 @@ body.no-scroll {
 .button:active { transform: translateY(0); }
 .button:focus { outline: 3px solid rgba(210,32,48,0.35); outline-offset: 2px; }
 
-/* Overlay fills screen; iframe fills overlay */
+/* Quote of the Day pinned to bottom */
+.quote {
+  padding: 1rem 0.5rem;
+  text-align: center;
+  color: #333;
+  border-top: 1px solid #eee;
+}
+.quote-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+.quote-text {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Overlay: dim background, center popup with visible edges */
 .overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
   display: grid;
   place-items: center;
-  padding: 0;                 /* no padding so iframe can truly fill */
+  padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
   z-index: 1000;
 }
 
-/* Full-bleed iframe (with iOS-safe heights) */
-.overlay iframe {
-  width: 100vw;
-  height: 100svh;             /* iOS small viewport */
-  height: 100dvh;             /* modern viewport */
-  height: 100vh;              /* fallback */
-  border: 0;
+/* Popup: visible edges on iPad; iframe fills it fully */
+.popup {
+  width: 94vw;
+  height: 94svh;             /* iOS small viewport */
+  height: 94dvh;             /* modern viewport */
+  height: 94vh;              /* fallback */
   background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  position: relative;
+  overflow: hidden;          /* so iframe corners follow radius */
 }
 
-/* Optional: give it rounded corners on larger screens only */
-@media (min-width: 900px) {
-  .overlay iframe {
-    width: 92vw;
-    height: 92svh;
-    height: 92dvh;
-    height: 92vh;
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  }
+/* Full-bleed iframe inside popup */
+.popup iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
-/* Close button */
+/* Close button (inside popup corner) */
 .overlay-close {
-  position: fixed;
-  top: max(10px, env(safe-area-inset-top));
-  right: max(10px, env(safe-area-inset-right));
+  position: absolute;
+  top: 8px;
+  right: 8px;
   font-size: 2rem;
   line-height: 1;
   width: 44px; height: 44px;
