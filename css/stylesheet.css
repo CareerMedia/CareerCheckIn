@@ -22,9 +22,6 @@ body {
   --shadow-strong: 0 16px 44px rgba(0,0,0,0.22);
 
   --txt-invert: #ffffff;
-
-  /* Fixed quote bar height used to center main content precisely */
-  --quote-h: 64px;
 }
 
 /* Respect reduced motion */
@@ -48,33 +45,31 @@ body {
 }
 
 /* ================================
-   Home Layout (centered tight stack)
+   Home Layout
+   (grid: centered content + bottom quote bar)
 =============================== */
 .home {
   height: 100svh; height: 100dvh; height: 100vh;
-  display: block;
-  padding: max(8px, env(safe-area-inset-top)) 16px 0; /* quote bar fixed; no bottom pad */
-}
-
-/* Container that centers the stack in the space above the quote bar */
-.home-center {
-  height: calc(100svh - var(--quote-h));
-  height: calc(100dvh - var(--quote-h));
-  height: calc(100vh  - var(--quote-h));
-  width: min(520px, 92vw);
-  margin: 0 auto;
-
   display: grid;
-  place-items: center;     /* centers the .stack block vertically & horizontally */
-  text-align: center;
+  grid-template-rows: 1fr auto;     /* top fills, bottom hugs content */
+  padding: max(8px, env(safe-area-inset-top)) 16px max(8px, env(safe-area-inset-bottom));
 }
 
-/* Tight vertical stack for logo + title + buttons */
+/* Center group: logo + title + buttons (tight stack) */
+.home-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;          /* vertical centering within row */
+}
 .home-center .stack {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;                /* spacing between logo, title, buttons */
+  text-align: center;
+
+  /* <<< tighter spacing between the three items >>> */
+  gap: 6px;
+  width: min(520px, 92vw);
 }
 
 /* Logo + title */
@@ -97,7 +92,7 @@ body {
 .buttons {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;                        /* spacing between individual buttons */
   width: 100%;
 }
 .button {
@@ -151,19 +146,15 @@ body {
 }
 
 /* ================================
-   Quote Bar (white, full width, stacked)
+   Quote Bar (white, full width, title above quote)
+   (now in normal flow as the grid's bottom row)
 =============================== */
 .quote-bar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1;
-  height: var(--quote-h);
   background: #ffffff;
   border-top: 1px solid rgba(0,0,0,0.06);
-  padding: 8px max(16px, env(safe-area-inset-left))
-           max(8px, env(safe-area-inset-bottom))
-           max(16px, env(safe-area-inset-right));
+  padding: 10px max(16px, env(safe-area-inset-left))
+           10px max(16px, env(safe-area-inset-right));
   box-shadow: 0 -8px 18px rgba(0,0,0,0.08);
-  display: grid;
-  place-items: center;
 }
 .quote-inner {
   display: flex;
@@ -231,35 +222,7 @@ body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
    Height safety for very short contexts (Split View)
 =============================== */
 @media (max-height: 780px) {
-  :root { --quote-h: 58px; }
-  .home-center .stack { gap: 6px; }
-  .buttons { gap: 10px; }
+  .home-center .stack { gap: 5px; }
+  .buttons { gap: 8px; }
   .title { font-size: clamp(1.45rem, 3.2vw, 1.9rem); }
-}
-
-/* ================================
-   Overrides
-=============================== */
-/* --- Tighten spacing between logo → title → buttons --- */
-.home-center,
-.home-center .stack {
-  display: flex;               /* ensure a single vertical stack */
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;     /* keep the whole stack centered */
-  gap: 6px;                    /* ← adjust this number to taste (e.g., 4–10px) */
-}
-
-/* kill any default margins that might push things apart */
-.home-center > img.logo,
-.home-center > .title,
-.home-center .stack > img.logo,
-.home-center .stack > .title {
-  margin: 0 !important;
-}
-
-/* keep buttons close to the title, but tidy inside */
-.buttons {
-  margin-top: 0 !important;
-  gap: 10px;                   /* spacing between the individual buttons */
 }
