@@ -58,4 +58,53 @@ body.no-scroll {
 
 /* Overlay fills screen; iframe fills overlay */
 .overlay {
-  posi
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: grid;
+  place-items: center;
+  padding: 0;                 /* no padding so iframe can truly fill */
+  z-index: 1000;
+}
+
+/* Full-bleed iframe (with iOS-safe heights) */
+.overlay iframe {
+  width: 100vw;
+  height: 100svh;             /* iOS small viewport */
+  height: 100dvh;             /* modern viewport */
+  height: 100vh;              /* fallback */
+  border: 0;
+  background: #fff;
+}
+
+/* Optional: give it rounded corners on larger screens only */
+@media (min-width: 900px) {
+  .overlay iframe {
+    width: 92vw;
+    height: 92svh;
+    height: 92dvh;
+    height: 92vh;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+}
+
+/* Close button */
+.overlay-close {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  font-size: 2rem;
+  line-height: 1;
+  width: 44px; height: 44px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+  cursor: pointer;
+  z-index: 1001;
+}
+.overlay-close:hover { background: rgba(0,0,0,0.55); }
+.overlay-close:focus { outline: 3px solid rgba(255,255,255,0.7); outline-offset: 3px; }
+
+.hidden { display: none !important; }
