@@ -10,16 +10,22 @@ body {
   color: #121212;
 }
 
-/* Accent palette */
+/* Accent palette + layout tokens */
 :root {
   --accent: #d22030;
   --accent2: #e64b36;
+
   --glass: rgba(255,255,255,0.38);
-  --glass-strong: rgba(255,255,255,0.55);
   --glass-stroke: rgba(255,255,255,0.8);
+
   --shadow-soft: 0 12px 28px rgba(0,0,0,0.18), 0 0 1px rgba(0,0,0,0.08);
   --shadow-strong: 0 16px 44px rgba(0,0,0,0.22);
+
   --txt-invert: #ffffff;
+
+  /* Fixed quote bar height for perfect centering of the main content.
+     Adjust if you tweak quote-bar padding/typography. */
+  --quote-h: 64px;
 }
 
 /* ================================
@@ -38,33 +44,54 @@ body {
 }
 
 /* ================================
-   Home Layout (open, bright)
+   Home Layout (center content exactly)
 =============================== */
 .home {
   height: 100svh; height: 100dvh; height: 100vh;
-  display: grid;
-  grid-template-rows: 1fr auto;  /* center + bottom quote bar */
-  padding: max(8px, env(safe-area-inset-top)) 16px max(58px, env(safe-area-inset-bottom));
+  display: block;  /* keep simple; we'll center the inner group */
+  padding: max(8px, env(safe-area-inset-top)) 16px 0; /* no bottom padding (quote bar is fixed) */
 }
+
+/* Center group: logo + title + buttons
+   - Occupies the viewport height MINUS the fixed quote bar.
+   - Centers vertically & horizontally inside that space. */
 .home-center {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 14px; text-align: center;
-  width: min(520px, 92vw); margin: 0 auto;
+  height: calc(100svh - var(--quote-h));
+  height: calc(100dvh - var(--quote-h));
+  height: calc(100vh  - var(--quote-h));
+  width: min(520px, 92vw);
+  margin: 0 auto;
+
+  display: grid;
+  place-items: center;                 /* horizontal + vertical centering */
+  text-align: center;
+  gap: 0;                              /* the inner stack controls spacing */
 }
-.logo { width: clamp(92px, 12vw, 120px); height: auto; filter: drop-shadow(0 6px 14px rgba(0,0,0,.25)); }
+
+/* Inner stack to control spacing between logo/title/buttons */
+.home-center > * {
+  /* create a vertical stack without affecting centering math */
+}
+.logo {
+  width: clamp(92px, 12vw, 120px);
+  height: auto;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.25));
+  margin-bottom: 12px;
+}
 .title {
   color: #ffffff;
   font-weight: 800;
   letter-spacing: .2px;
   text-shadow: 0 2px 8px rgba(0,0,0,.22);
   font-size: clamp(1.6rem, 3.6vw, 2.1rem);
+  margin-bottom: 12px;
 }
 
-/* ================================
-   Neo-glass Buttons
-=============================== */
+/* Buttons */
 .buttons {
-  display: flex; flex-direction: column; gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   width: 100%;
 }
 .button {
@@ -90,8 +117,6 @@ body {
 .button:focus-visible { outline: none; box-shadow: var(--shadow-strong); }
 .button:hover { transform: translateY(-1px); filter: saturate(1.06); }
 .button:active { transform: translateY(0); }
-
-/* Button border sheen */
 .button::before {
   content: "";
   position: absolute; inset: 0;
@@ -99,8 +124,6 @@ body {
   border: 1px solid rgba(255,255,255,0.5);
   pointer-events: none;
 }
-
-/* Glare sweep (occasionally triggered) */
 .button::after {
   content: "";
   position: absolute;
@@ -110,9 +133,7 @@ body {
   background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,.55), rgba(255,255,255,0));
   opacity: 0; pointer-events: none;
 }
-.button.shine::after {
-  animation: glareSweep 1.2s ease forwards;
-}
+.button.shine::after { animation: glareSweep 1.2s ease forwards; }
 @keyframes glareSweep {
   0%   { transform: translateX(0) skewX(-20deg); opacity: 0; }
   15%  { opacity: .9; }
@@ -120,30 +141,44 @@ body {
 }
 
 /* ================================
-   Quote Bar (white across bottom)
+   Quote Bar (fixed at bottom, title above quote)
 =============================== */
 .quote-bar {
-  position: fixed; left: 0; right: 0;
-  bottom: 0; z-index: 1;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1;
+  height: var(--quote-h);
   background: #ffffff;
   border-top: 1px solid rgba(0,0,0,0.06);
-  padding: 10px max(16px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-right));
+  padding: 8px max(16px, env(safe-area-inset-left))
+           max(8px, env(safe-area-inset-bottom))
+           max(16px, env(safe-area-inset-right));
   box-shadow: 0 -8px 18px rgba(0,0,0,0.08);
+  display: grid;
+  place-items: center;
 }
 .quote-inner {
-  display: flex; align-items: baseline; justify-content: center;
-  gap: 10px; flex-wrap: wrap;
-  max-width: 1200px; margin: 0 auto;
+  display: flex;
+  flex-direction: column;       /* stack title over quote */
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 .quote-label {
-  font-weight: 800; color: #333; letter-spacing: .02em;
+  font-weight: 800;
+  color: #333;
+  letter-spacing: .02em;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 .quote-text {
-  color: #444; line-height: 1.35;
+  color: #444;
+  line-height: 1.3;
+  font-size: 0.95rem;
 }
 
 /* ================================
-   Overlay & Popup (simple fade/scale)
+   Overlay & Popup (unchanged: simple fade/scale)
 =============================== */
 body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
 
@@ -181,11 +216,3 @@ body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
   transition: transform .16s ease, filter .16s ease;
 }
 .overlay-close:hover { transform: translateY(-1px); filter: saturate(1.06); }
-
-.hidden { display: none !important; }
-
-/* Reduced motion: keep it calm */
-@media (prefers-reduced-motion: reduce) {
-  .button, .overlay, .popup { transition: none !important; }
-  .button::after { animation: none !important; }
-}
