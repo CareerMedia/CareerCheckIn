@@ -9,12 +9,12 @@
   <script src="https://unpkg.com/papaparse@5.3.1/papaparse.min.js"></script>
 </head>
 <body>
-  <!-- Animated ambient background -->
+  <!-- Animated background -->
   <div class="bg"></div>
 
   <!-- Home -->
   <main id="home" class="home">
-    <div class="home-center glass card">
+    <div class="home-center">
       <img
         id="logo"
         src="./assets/logo.svg"
@@ -26,21 +26,19 @@
       <div id="buttons" class="buttons"></div>
     </div>
 
-    <footer class="quote glass card">
-      <h2 class="quote-title">Quote of the Day</h2>
-      <p id="quoteText" class="quote-text">Loading…</p>
+    <!-- Quote bar across the bottom -->
+    <footer class="quote-bar">
+      <div class="quote-inner">
+        <span class="quote-label">Quote of the Day</span>
+        <span id="quoteText" class="quote-text">Loading…</span>
+      </div>
     </footer>
   </main>
 
-  <!-- Page wipe layer -->
-  <div id="wipe" class="wipe" aria-hidden="true"></div>
-
-  <!-- Popup Overlay -->
+  <!-- Popup Overlay (no page wipe) -->
   <div id="formOverlay" class="overlay hidden" aria-hidden="true">
-    <div class="popup glass card" role="dialog" aria-modal="true">
-      <button id="closeOverlay" class="overlay-close" aria-label="Close form">
-        <span aria-hidden="true">×</span>
-      </button>
+    <div class="popup" role="dialog" aria-modal="true">
+      <button id="closeOverlay" class="overlay-close" aria-label="Close form">×</button>
       <iframe id="formFrame" src="" frameborder="0" title="Embedded form"></iframe>
     </div>
   </div>
