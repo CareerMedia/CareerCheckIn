@@ -5,25 +5,30 @@ const state = {
   overlayOpen: false,
   scrollY: 0,
   closeOnContains: null,
+  animating: false,
 };
 
-function byId(id){ return document.getElementById(id); }
+function $id(id){ return document.getElementById(id); }
 
 window.addEventListener('DOMContentLoaded', () => {
   loadButtons();
   installQuoteOfTheDay();
-  byId('closeOverlay').addEventListener('click', closeOverlay);
 
-  // Optional: allow embedded pages you control to close the popup
+  $id('closeOverlay').addEventListener('click', () => closeOverlay({ animated: true }));
+
+  // Optional: embedded pages can close themselves
   window.addEventListener('message', (event) => {
     try {
       if (event && event.data && (event.data.type === 'kiosk:done' || event.data === 'kiosk:done')) {
-        closeOverlay();
+        closeOverlay({ animated: true });
       }
     } catch(e) { /* ignore */ }
   });
 });
 
+/* ----------------------------
+   Buttons & CSV
+----------------------------- */
 function loadButtons() {
   fetch(CSV_PATH)
     .then(res => {
@@ -31,20 +36,18 @@ function loadButtons() {
       return res.text();
     })
     .then(csvText => {
-      // Trim BOM if present, parse rows
       if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
       const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-      const rows = parsed.data.map(normalizeRow)
-        .filter(r => r.ButtonName && r.EmbedURL);
+      const rows = parsed.data.map(normalizeRow).filter(r => r.ButtonName && r.EmbedURL);
 
-      const container = byId('buttons');
+      const container = $id('buttons');
       container.innerHTML = '';
       rows.forEach(r => {
         const btn = document.createElement('button');
         btn.className = 'button';
         btn.type = 'button';
         btn.textContent = r.ButtonName;
-        btn.addEventListener('click', () => openOverlay(r.EmbedURL, r.CloseOnUrlContains));
+        btn.addEventListener('click', () => openOverlay(r.EmbedURL, r.CloseOnUrlContains, { animated: true }));
         container.appendChild(btn);
       });
     })
@@ -53,7 +56,6 @@ function loadButtons() {
       alert('Error loading buttons CSV. Check console.');
     });
 }
-
 function normalizeRow(row) {
   const name = (row.ButtonName ?? row['\ufeffButtonName'] ?? '').trim();
   const url = (row.EmbedURL ?? '').trim();
@@ -61,70 +63,113 @@ function normalizeRow(row) {
   return { ButtonName: name, EmbedURL: url, CloseOnUrlContains: closeOn };
 }
 
-function openOverlay(url, closeOnContains = '') {
-  const overlay = byId('formOverlay');
-  const iframe  = byId('formFrame');
+/* ----------------------------
+   Overlay open/close with page wipe
+----------------------------- */
+function openOverlay(url, closeOnContains = '', { animated = true } = {}) {
+  if (state.animating || state.overlayOpen) return;
+  state.animating = true;
 
-  // Resolve absolute URL for stability
+  const overlay = $id('formOverlay');
+  const iframe  = $id('formFrame');
+  const wipe    = $id('wipe');
   const resolved = new URL(url, window.location.href).href;
 
-  // Lock scroll behind popup (iPad friendly)
+  // Lock scroll behind popup
   state.scrollY = window.scrollY || document.documentElement.scrollTop || 0;
   document.body.classList.add('no-scroll');
   document.body.style.top = `-${state.scrollY}px`;
 
-  state.overlayOpen = true;
   state.closeOnContains = closeOnContains || '';
 
-  // Reset iframe, show overlay, then set src
+  // Prepare
   iframe.removeAttribute('src');
   overlay.classList.remove('hidden');
   overlay.setAttribute('aria-hidden', 'false');
 
-  iframe.onload = () => {
-    try {
-      const currentSrc = iframe.src;
-      // Optional auto-close when a "thank you" / submission URL appears
-      if (state.closeOnContains && currentSrc.includes(state.closeOnContains)) {
-        closeOverlay();
-      }
-    } catch(e) {
-      // Cross-origin access is fine; we're not inspecting DOM, only URL string
-    }
+  const startOverlay = () => {
+    overlay.classList.add('active');
+    iframe.onload = () => {
+      try {
+        const currentSrc = iframe.src;
+        if (state.closeOnContains && currentSrc.includes(state.closeOnContains)) {
+          closeOverlay({ animated: true });
+        }
+      } catch(e){ /* cross-origin safe */ }
+    };
+    iframe.src = resolved;
+    state.overlayOpen = true;
+    state.animating = false;
   };
 
-  iframe.src = resolved;
+  if (animated) {
+    wipe.classList.remove('out');
+    wipe.classList.add('in');
+    wipe.addEventListener('animationend', function onEnd() {
+      wipe.removeEventListener('animationend', onEnd);
+      // Immediately run reverse wipe to reveal popup with subtle delay overlap
+      wipe.classList.remove('in');
+      wipe.classList.add('out');
+      startOverlay();
+    }, { once: true });
+  } else {
+    startOverlay();
+    state.animating = false;
+  }
 }
 
-function closeOverlay() {
-  if (!state.overlayOpen) return;
+function closeOverlay({ animated = true } = {}) {
+  if (state.animating || !state.overlayOpen) return;
+  state.animating = true;
 
-  const overlay = byId('formOverlay');
-  const iframe  = byId('formFrame');
+  const overlay = $id('formOverlay');
+  const iframe  = $id('formFrame');
+  const wipe    = $id('wipe');
 
-  overlay.classList.add('hidden');
-  overlay.setAttribute('aria-hidden', 'true');
+  const finishClose = () => {
+    overlay.classList.remove('active');
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+    iframe.removeAttribute('src');
 
-  // Release iframe content
-  iframe.removeAttribute('src');
+    // Restore scroll
+    document.body.classList.remove('no-scroll');
+    document.body.style.top = '';
+    window.scrollTo(0, state.scrollY || 0);
 
-  // Restore scroll
-  document.body.classList.remove('no-scroll');
-  document.body.style.top = '';
-  window.scrollTo(0, state.scrollY || 0);
+    state.overlayOpen = false;
+    state.closeOnContains = null;
+    state.animating = false;
+  };
 
-  state.overlayOpen = false;
-  state.closeOnContains = null;
+  if (animated) {
+    // Play wipe in reverse (from current view up)
+    wipe.classList.remove('in');
+    wipe.classList.add('in'); // ensure restart
+    void wipe.offsetWidth;    // reflow to restart animation
+    wipe.classList.remove('out');
+    wipe.classList.add('in');
+
+    // Fade out overlay while wipe covers
+    overlay.classList.remove('active');
+
+    wipe.addEventListener('animationend', function onEnd() {
+      wipe.removeEventListener('animationend', onEnd);
+      // Push wipe up to reveal home again
+      wipe.classList.remove('in');
+      wipe.classList.add('out');
+      finishClose();
+    }, { once: true });
+  } else {
+    finishClose();
+  }
 }
 
-/* ---------- Quote of the Day ---------- */
-
-/**
- * Picks a deterministic daily quote from a built-in list (offline-safe).
- * If you add assets/quotes.json (array of {text, author}), we’ll try to load it first.
- */
+/* ----------------------------
+   Quote of the Day (deterministic, offline-safe)
+----------------------------- */
 function installQuoteOfTheDay() {
-  const el = byId('quoteText');
+  const el = $id('quoteText');
   const fallback = getLocalQuoteOfDay();
 
   fetch('./assets/quotes.json', { cache: 'no-store' })
@@ -138,7 +183,6 @@ function installQuoteOfTheDay() {
       el.textContent = formatQuote(fallback);
     });
 }
-
 function getLocalQuoteOfDay() {
   const quotes = [
     { text: "The future depends on what you do today.", author: "Mahatma Gandhi" },
@@ -154,23 +198,16 @@ function getLocalQuoteOfDay() {
   ];
   return pickByDate(quotes);
 }
-
 function pickByDate(list) {
   const today = new Date();
   const seed = today.getFullYear() * 1000 + (today.getMonth() + 1) * 50 + today.getDate();
   const idx = Math.abs(hash(seed.toString())) % list.length;
   return list[idx];
 }
-
 function hash(str) {
-  // Simple deterministic hash (djb2-ish)
-  let h = 5381;
-  for (let i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i);
-  return h;
+  let h = 5381; for (let i=0;i<str.length;i++) h = ((h<<5)+h) + str.charCodeAt(i); return h;
 }
-
 function formatQuote(q) {
   if (!q) return "Keep going. You're doing great.";
-  if (q.author) return `“${q.text}” — ${q.author}`;
-  return `“${q.text}”`;
+  return q.author ? `“${q.text}” — ${q.author}` : `“${q.text}”`;
 }
