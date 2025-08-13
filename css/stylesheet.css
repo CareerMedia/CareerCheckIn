@@ -22,6 +22,15 @@ body {
   --shadow-strong: 0 16px 44px rgba(0,0,0,0.22);
 
   --txt-invert: #ffffff;
+
+  /* Ring layer controls */
+  --ring-thickness: 14px;   /* thickness of each ring stroke */
+  --r1: 18vw;               /* base radii; spaced so rings never touch */
+  --r2: 30vw;
+  --r3: 42vw;
+  --r4: 54vw;
+  --r5: 66vw;
+  --r6: 78vw;
 }
 
 /* Reduced motion */
@@ -30,7 +39,7 @@ body {
 }
 
 /* ================================
-   Animated Gradient Background
+   Animated Gradient Background (+ ring layer)
 =============================== */
 .bg {
   position: fixed; inset: 0; z-index: -1;
@@ -39,14 +48,80 @@ body {
   animation: gradientShift 18s ease-in-out infinite alternate;
   filter: saturate(1.06);
 }
+
+/* Six pulsing rings centered at bottom-left, above the gradient */
+.bg::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+
+  /* Draw 6 rings as layered radial-gradients.
+     Each ring = transparent → black(20%) band → transparent. */
+  background:
+    radial-gradient(circle at 0% 100%,
+      transparent calc(var(--r1) - var(--ring-thickness)),
+      rgba(0,0,0,0.20) var(--r1),
+      rgba(0,0,0,0.20) calc(var(--r1) + var(--ring-thickness)),
+      transparent calc(var(--r1) + var(--ring-thickness) + 1px)
+    ),
+    radial-gradient(circle at 0% 100%,
+      transparent calc(var(--r2) - var(--ring-thickness)),
+      rgba(0,0,0,0.20) var(--r2),
+      rgba(0,0,0,0.20) calc(var(--r2) + var(--ring-thickness)),
+      transparent calc(var(--r2) + var(--ring-thickness) + 1px)
+    ),
+    radial-gradient(circle at 0% 100%,
+      transparent calc(var(--r3) - var(--ring-thickness)),
+      rgba(0,0,0,0.20) var(--r3),
+      rgba(0,0,0,0.20) calc(var(--r3) + var(--ring-thickness)),
+      transparent calc(var(--r3) + var(--ring-thickness) + 1px)
+    ),
+    radial-gradient(circle at 0% 100%,
+      transparent calc(var(--r4) - var(--ring-thickness)),
+      rgba(0,0,0,0.20) var(--r4),
+      rgba(0,0,0,0.20) calc(var(--r4) + var(--ring-thickness)),
+      transparent calc(var(--r4) + var(--ring-thickness) + 1px)
+    ),
+    radial-gradient(circle at 0% 100%,
+      transparent calc(var(--r5) - var(--ring-thickness)),
+      rgba(0,0,0,0.20) var(--r5),
+      rgba(0,0,0,0.20) calc(var(--r5) + var(--ring-thickness)),
+      transparent calc(var(--r5) + var(--ring-thickness) + 1px)
+    ),
+    radial-gradient(circle at 0% 100%,
+      transparent calc(var(--r6) - var(--ring-thickness)),
+      rgba(0,0,0,0.20) var(--r6),
+      rgba(0,0,0,0.20) calc(var(--r6) + var(--ring-thickness)),
+      transparent calc(var(--r6) + var(--ring-thickness) + 1px)
+    );
+  background-repeat: no-repeat;
+
+  /* Each ring’s radius gently breathes with its own tempo/delay */
+  animation:
+    ring1 13s ease-in-out infinite alternate,
+    ring2 16s ease-in-out infinite alternate,
+    ring3 19s ease-in-out infinite alternate,
+    ring4 22s ease-in-out infinite alternate,
+    ring5 25s ease-in-out infinite alternate,
+    ring6 28s ease-in-out infinite alternate;
+}
+
 @keyframes gradientShift {
   0%   { background-position: 0% 40%; }
   100% { background-position: 100% 60%; }
 }
 
+/* Pulsing the custom properties that define ring radii
+   Small amplitude so rings NEVER touch each other */
+@keyframes ring1 { 0% { --r1: 18vw; } 50% { --r1: 20vw; } 100% { --r1: 18vw; } }
+@keyframes ring2 { 0% { --r2: 30vw; } 50% { --r2: 32vw; } 100% { --r2: 30vw; } }
+@keyframes ring3 { 0% { --r3: 42vw; } 50% { --r3: 44vw; } 100% { --r3: 42vw; } }
+@keyframes ring4 { 0% { --r4: 54vw; } 50% { --r4: 56vw; } 100% { --r4: 54vw; } }
+@keyframes ring5 { 0% { --r5: 66vw; } 50% { --r5: 68vw; } 100% { --r5: 66vw; } }
+@keyframes ring6 { 0% { --r6: 78vw; } 50% { --r6: 80vw; } 100% { --r6: 78vw; } }
+
 /* ================================
-   Home Layout
-   (grid: centered content + bottom quote bar)
+   Home Layout (grid: centered content + bottom quote bar)
 =============================== */
 .home {
   height: 100svh; height: 100dvh; height: 100vh;
@@ -55,27 +130,24 @@ body {
   padding: max(8px, env(safe-area-inset-top)) 16px max(8px, env(safe-area-inset-bottom));
 }
 
-/* Center group: logo + title + buttons
-   Use GRID so children always stack vertically, no matter what. */
+/* Center group: logo + title + buttons (vertical) */
 .home-center {
-  display: grid !important;
-  grid-auto-flow: row !important;   /* force vertical flow */
-  justify-items: center;            /* horizontal center of children */
-  align-content: center;            /* vertical center of the whole stack */
-  row-gap: 6px;                     /* tight spacing between logo/title/buttons */
-
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;          /* vertical centering within row */
+  gap: 8px;                         /* tight spacing between the three items */
   width: min(520px, 92vw);
   margin: 0 auto;
   text-align: center;
 }
 
-/* Logo + title (remove default margins) */
+/* Logo + title */
 .logo {
   width: clamp(92px, 12vw, 120px);
   height: auto;
   filter: drop-shadow(0 6px 14px rgba(0,0,0,.25));
-  margin: 0 !important;
-  display: block;
+  margin: 0;
 }
 .title {
   color: #ffffff;
@@ -83,7 +155,7 @@ body {
   letter-spacing: .2px;
   text-shadow: 0 2px 8px rgba(0,0,0,.22);
   font-size: clamp(1.6rem, 3.6vw, 2.1rem);
-  margin: 0 !important;
+  margin: 0;
 }
 
 /* ================================
@@ -92,9 +164,9 @@ body {
 .buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;                        /* spacing between individual buttons */
+  gap: 10px;
   width: 100%;
-  margin: 0 !important;             /* hug the title */
+  margin: 0;
 }
 .button {
   -webkit-tap-highlight-color: transparent;
@@ -148,7 +220,6 @@ body {
 
 /* ================================
    Quote Bar (white, full width, title above quote)
-   (in normal flow as the grid's bottom row)
 =============================== */
 .quote-bar {
   background: #ffffff;
@@ -223,7 +294,7 @@ body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
    Height safety for very short contexts (Split View)
 =============================== */
 @media (max-height: 780px) {
-  .home-center { row-gap: 5px; }
+  .home-center { gap: 6px; }
   .buttons { gap: 8px; }
   .title { font-size: clamp(1.45rem, 3.2vw, 1.9rem); }
 }
