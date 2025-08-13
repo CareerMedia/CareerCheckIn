@@ -10,7 +10,7 @@ body {
   color: #121212;
 }
 
-/* Accent palette + layout tokens */
+/* Tokens */
 :root {
   --accent: #d22030;
   --accent2: #e64b36;
@@ -23,9 +23,13 @@ body {
 
   --txt-invert: #ffffff;
 
-  /* Fixed quote bar height for perfect centering of the main content.
-     Adjust if you tweak quote-bar padding/typography. */
+  /* Fixed quote bar height used to center main content precisely */
   --quote-h: 64px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
 
 /* ================================
@@ -36,7 +40,7 @@ body {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   background-size: 200% 200%;
   animation: gradientShift 18s ease-in-out infinite alternate;
-  filter: saturate(1.08);
+  filter: saturate(1.06);
 }
 @keyframes gradientShift {
   0%   { background-position: 0% 40%; }
@@ -44,17 +48,15 @@ body {
 }
 
 /* ================================
-   Home Layout (center content exactly)
+   Home Layout (centered tight stack)
 =============================== */
 .home {
   height: 100svh; height: 100dvh; height: 100vh;
-  display: block;  /* keep simple; we'll center the inner group */
-  padding: max(8px, env(safe-area-inset-top)) 16px 0; /* no bottom padding (quote bar is fixed) */
+  display: block;
+  padding: max(8px, env(safe-area-inset-top)) 16px 0; /* quote bar fixed; no bottom pad */
 }
 
-/* Center group: logo + title + buttons
-   - Occupies the viewport height MINUS the fixed quote bar.
-   - Centers vertically & horizontally inside that space. */
+/* Container that centers the stack in the space above the quote bar */
 .home-center {
   height: calc(100svh - var(--quote-h));
   height: calc(100dvh - var(--quote-h));
@@ -63,20 +65,23 @@ body {
   margin: 0 auto;
 
   display: grid;
-  place-items: center;                 /* horizontal + vertical centering */
+  place-items: center;     /* centers the .stack block vertically & horizontally */
   text-align: center;
-  gap: 0;                              /* the inner stack controls spacing */
 }
 
-/* Inner stack to control spacing between logo/title/buttons */
-.home-center > * {
-  /* create a vertical stack without affecting centering math */
+/* Tight vertical stack for logo + title + buttons */
+.home-center .stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;                /* spacing between logo, title, buttons */
 }
+
+/* Logo + title */
 .logo {
   width: clamp(92px, 12vw, 120px);
   height: auto;
   filter: drop-shadow(0 6px 14px rgba(0,0,0,.25));
-  margin-bottom: 12px;
 }
 .title {
   color: #ffffff;
@@ -84,14 +89,15 @@ body {
   letter-spacing: .2px;
   text-shadow: 0 2px 8px rgba(0,0,0,.22);
   font-size: clamp(1.6rem, 3.6vw, 2.1rem);
-  margin-bottom: 12px;
 }
 
-/* Buttons */
+/* ================================
+   Neo-glass Buttons
+=============================== */
 .buttons {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
 }
 .button {
@@ -117,6 +123,8 @@ body {
 .button:focus-visible { outline: none; box-shadow: var(--shadow-strong); }
 .button:hover { transform: translateY(-1px); filter: saturate(1.06); }
 .button:active { transform: translateY(0); }
+
+/* subtle border sheen */
 .button::before {
   content: "";
   position: absolute; inset: 0;
@@ -124,6 +132,8 @@ body {
   border: 1px solid rgba(255,255,255,0.5);
   pointer-events: none;
 }
+
+/* random glare sweep */
 .button::after {
   content: "";
   position: absolute;
@@ -141,7 +151,7 @@ body {
 }
 
 /* ================================
-   Quote Bar (fixed at bottom, title above quote)
+   Quote Bar (white, full width, stacked)
 =============================== */
 .quote-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 1;
@@ -157,7 +167,7 @@ body {
 }
 .quote-inner {
   display: flex;
-  flex-direction: column;       /* stack title over quote */
+  flex-direction: column;       /* title above quote */
   align-items: center;
   text-align: center;
   gap: 4px;
@@ -178,7 +188,7 @@ body {
 }
 
 /* ================================
-   Overlay & Popup (unchanged: simple fade/scale)
+   Overlay & Popup (simple fade/scale)
 =============================== */
 body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
 
@@ -216,3 +226,13 @@ body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
   transition: transform .16s ease, filter .16s ease;
 }
 .overlay-close:hover { transform: translateY(-1px); filter: saturate(1.06); }
+
+/* ================================
+   Height safety for very short contexts (Split View)
+=============================== */
+@media (max-height: 780px) {
+  :root { --quote-h: 58px; }
+  .home-center .stack { gap: 6px; }
+  .buttons { gap: 10px; }
+  .title { font-size: clamp(1.45rem, 3.2vw, 1.9rem); }
+}
