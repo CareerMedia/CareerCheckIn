@@ -24,13 +24,14 @@ body {
   --txt-invert: #ffffff;
 
   /* Ring layer controls */
-  --ring-thickness: 14px;   /* thickness of each ring stroke */
-  --r1: 18vw;               /* base radii; spaced so rings never touch */
-  --r2: 30vw;
-  --r3: 42vw;
-  --r4: 54vw;
-  --r5: 66vw;
-  --r6: 78vw;
+  --ring-thickness: 14px;  /* thickness of each ring band */
+  /* base radii (vmax so they scale with the longest side) */
+  --r1: 16vmax;
+  --r2: 28vmax;
+  --r3: 42vmax;
+  --r4: 58vmax;
+  --r5: 78vmax;
+  --r6: 140vmax; /* spans the diagonal so rings always reach across screen */
 }
 
 /* Reduced motion */
@@ -39,7 +40,7 @@ body {
 }
 
 /* ================================
-   Animated Gradient Background (+ ring layer)
+   Animated Gradient Background (+ smooth ring layer)
 =============================== */
 .bg {
   position: fixed; inset: 0; z-index: -1;
@@ -49,14 +50,13 @@ body {
   filter: saturate(1.06);
 }
 
-/* Six pulsing rings centered at bottom-left, above the gradient */
+/* Six smooth, phase-shifted rings centered bottom-left, above gradient */
 .bg::after {
   content: "";
   position: absolute; inset: 0;
   pointer-events: none;
 
-  /* Draw 6 rings as layered radial-gradients.
-     Each ring = transparent → black(20%) band → transparent. */
+  /* 6 ring bands using radial gradients (center at bottom-left) */
   background:
     radial-gradient(circle at 0% 100%,
       transparent calc(var(--r1) - var(--ring-thickness)),
@@ -96,14 +96,14 @@ body {
     );
   background-repeat: no-repeat;
 
-  /* Each ring’s radius gently breathes with its own tempo/delay */
+  /* Smooth, wave-like pulses (same tempo, staggered delays) */
   animation:
-    ring1 13s ease-in-out infinite alternate,
-    ring2 16s ease-in-out infinite alternate,
-    ring3 19s ease-in-out infinite alternate,
-    ring4 22s ease-in-out infinite alternate,
-    ring5 25s ease-in-out infinite alternate,
-    ring6 28s ease-in-out infinite alternate;
+    wave1 18s cubic-bezier(.4,0,.2,1) infinite alternate,
+    wave2 18s cubic-bezier(.4,0,.2,1) 1.5s infinite alternate,
+    wave3 18s cubic-bezier(.4,0,.2,1) 3s infinite alternate,
+    wave4 18s cubic-bezier(.4,0,.2,1) 4.5s infinite alternate,
+    wave5 18s cubic-bezier(.4,0,.2,1) 6s infinite alternate,
+    wave6 18s cubic-bezier(.4,0,.2,1) 7.5s infinite alternate;
 }
 
 @keyframes gradientShift {
@@ -111,14 +111,13 @@ body {
   100% { background-position: 100% 60%; }
 }
 
-/* Pulsing the custom properties that define ring radii
-   Small amplitude so rings NEVER touch each other */
-@keyframes ring1 { 0% { --r1: 18vw; } 50% { --r1: 20vw; } 100% { --r1: 18vw; } }
-@keyframes ring2 { 0% { --r2: 30vw; } 50% { --r2: 32vw; } 100% { --r2: 30vw; } }
-@keyframes ring3 { 0% { --r3: 42vw; } 50% { --r3: 44vw; } 100% { --r3: 42vw; } }
-@keyframes ring4 { 0% { --r4: 54vw; } 50% { --r4: 56vw; } 100% { --r4: 54vw; } }
-@keyframes ring5 { 0% { --r5: 66vw; } 50% { --r5: 68vw; } 100% { --r5: 66vw; } }
-@keyframes ring6 { 0% { --r6: 78vw; } 50% { --r6: 80vw; } 100% { --r6: 78vw; } }
+/* Tiny amplitude so rings never touch; delays create a traveling wave */
+@keyframes wave1 { 0% { --r1: 16vmax; } 50% { --r1: 17.2vmax; } 100% { --r1: 16vmax; } }
+@keyframes wave2 { 0% { --r2: 28vmax; } 50% { --r2: 29.2vmax; } 100% { --r2: 28vmax; } }
+@keyframes wave3 { 0% { --r3: 42vmax; } 50% { --r3: 43.3vmax; } 100% { --r3: 42vmax; } }
+@keyframes wave4 { 0% { --r4: 58vmax; } 50% { --r4: 59.3vmax; } 100% { --r4: 58vmax; } }
+@keyframes wave5 { 0% { --r5: 78vmax; } 50% { --r5: 79.3vmax; } 100% { --r5: 78vmax; } }
+@keyframes wave6 { 0% { --r6: 140vmax; } 50% { --r6: 141.5vmax; } 100% { --r6: 140vmax; } }
 
 /* ================================
    Home Layout (grid: centered content + bottom quote bar)
@@ -130,13 +129,13 @@ body {
   padding: max(8px, env(safe-area-inset-top)) 16px max(8px, env(safe-area-inset-bottom));
 }
 
-/* Center group: logo + title + buttons (vertical) */
+/* Center group: logo + title + buttons (vertical stack) */
 .home-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;          /* vertical centering within row */
-  gap: 8px;                         /* tight spacing between the three items */
+  display: grid !important;
+  grid-auto-flow: row !important;
+  justify-items: center;
+  align-content: center;
+  row-gap: 8px;
   width: min(520px, 92vw);
   margin: 0 auto;
   text-align: center;
@@ -219,18 +218,23 @@ body {
 }
 
 /* ================================
-   Quote Bar (white, full width, title above quote)
+   Quote Bar (full-bleed, white, title above quote)
 =============================== */
 .quote-bar {
+  grid-column: 1 / -1;
+  width: 100vw;                         /* full-bleed across viewport */
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   background: #ffffff;
   border-top: 1px solid rgba(0,0,0,0.06);
   padding: 10px max(16px, env(safe-area-inset-right))
-           10px max(16px, env(safe-area-inset-left));
+           max(10px, env(safe-area-inset-bottom))
+           max(16px, env(safe-area-inset-left));
   box-shadow: 0 -8px 18px rgba(0,0,0,0.08);
 }
 .quote-inner {
   display: flex;
-  flex-direction: column;       /* title above quote */
+  flex-direction: column;     /* title above quote */
   align-items: center;
   text-align: center;
   gap: 4px;
@@ -291,10 +295,10 @@ body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
 .overlay-close:hover { transform: translateY(-1px); filter: saturate(1.06); }
 
 /* ================================
-   Height safety for very short contexts (Split View)
+   Short-height safety (Split View)
 =============================== */
 @media (max-height: 780px) {
-  .home-center { gap: 6px; }
+  .home-center { row-gap: 6px; }
   .buttons { gap: 8px; }
   .title { font-size: clamp(1.45rem, 3.2vw, 1.9rem); }
 }
