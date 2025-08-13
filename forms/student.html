@@ -1,22 +1,33 @@
-<!-- in your HEAD (or a linked CSS file) -->
-<style>
-  .responsive-iframe {
-    position: relative;
-    width: 100%;               /* fill parent width */
-    padding-bottom: 56.25%;    /* 16:9 ratio (9÷16 = 0.5625 → 56.25%) */
-    height: 0;
-    overflow: hidden;
-  }
-  .responsive-iframe iframe {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-</style>
-
-<!-- wherever you want the embedded page -->
-<div class="responsive-iframe">
-  <iframe src="https://csun.sjc1.qualtrics.com/jfe/form/SV_cNflT6McHRkC6fs"></iframe>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Student Check-In</title>
+  <style>
+    /* Make the iframe fill the entire page area on iPad */
+    html, body { height: 100%; margin: 0; }
+    .fill {
+      position: fixed;         /* occupy the whole viewport */
+      inset: 0;                /* top:0; right:0; bottom:0; left:0 */
+      width: 100vw;
+      height: 100svh;          /* iOS small viewport */
+      height: 100dvh;          /* modern dynamic viewport */
+      height: 100vh;           /* fallback */
+      overflow: hidden;
+      background: #fff;
+    }
+    .fill iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="fill">
+    <iframe src="https://csun.sjc1.qualtrics.com/jfe/form/SV_cNflT6McHRkC6fs" title="Student Check-In"></iframe>
+  </div>
+</body>
+</html>
