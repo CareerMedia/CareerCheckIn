@@ -1,217 +1,191 @@
 /* ================================
-   Design System & Resets
-   ================================ */
-:root{
-  --accent: #d22030;
-  --accent-2: #e64b36;
-  --bg-1: #0b0b0d;
-  --bg-2: #111114;
-  --glass-bg: rgba(255,255,255,0.10);
-  --glass-brd: rgba(255,255,255,0.35);
-  --txt: #f6f7f9;
-  --muted: #cfd3d8;
-  --shadow: 0 30px 60px rgba(0,0,0,0.45);
-  --radius-xl: 24px;
-  --radius-md: 14px;
-  --ring: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
-}
-
-* { box-sizing: border-box; }
-html, body {
-  margin: 0; width: 100%; height: 100%;
-  font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "SF Pro Text", sans-serif;
-  color: var(--txt);
-  background: var(--bg-2);
+   Resets & Base
+=============================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; }
+html, body { overflow: hidden; }   /* no scrolling on home */
+body {
+  font-family: system-ui, -apple-system, "SF Pro Text", Segoe UI, Roboto, sans-serif;
   -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  color: #121212;
 }
 
-/* Never allow scroll on home; overlay manages its own scrolling if needed */
-html, body { overflow: hidden; }
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+/* Accent palette */
+:root {
+  --accent: #d22030;
+  --accent2: #e64b36;
+  --glass: rgba(255,255,255,0.38);
+  --glass-strong: rgba(255,255,255,0.55);
+  --glass-stroke: rgba(255,255,255,0.8);
+  --shadow-soft: 0 12px 28px rgba(0,0,0,0.18), 0 0 1px rgba(0,0,0,0.08);
+  --shadow-strong: 0 16px 44px rgba(0,0,0,0.22);
+  --txt-invert: #ffffff;
 }
 
 /* ================================
-   Ambient Background (subtle gradient blobs)
-   ================================ */
+   Animated Gradient Background
+=============================== */
 .bg {
   position: fixed; inset: 0; z-index: -1;
-  background:
-    radial-gradient(1200px 900px at 10% 15%, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 60%),
-    radial-gradient(1200px 900px at 90% 85%, color-mix(in srgb, var(--accent-2) 18%, transparent) 0%, transparent 60%),
-    linear-gradient(180deg, var(--bg-1), var(--bg-2));
-  filter: saturate(1.05);
-  animation: bgFloat 26s ease-in-out infinite alternate;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  background-size: 200% 200%;
+  animation: gradientShift 18s ease-in-out infinite alternate;
+  filter: saturate(1.08);
 }
-@keyframes bgFloat {
-  0%   { transform: translate3d(0,0,0) scale(1); }
-  100% { transform: translate3d(0,-1.5%,0) scale(1.03); }
+@keyframes gradientShift {
+  0%   { background-position: 0% 40%; }
+  100% { background-position: 100% 60%; }
 }
 
 /* ================================
-   Glass/Neoglass Cards
-   ================================ */
-.glass {
-  background: var(--glass-bg);
-  border: 1px solid color-mix(in srgb, var(--glass-brd) 55%, transparent);
-  backdrop-filter: blur(18px) saturate(1.1);
-  -webkit-backdrop-filter: blur(18px) saturate(1.1);
-}
-.card {
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow);
-}
-
-/* ================================
-   Home Layout (iPad first)
-   ================================ */
+   Home Layout (open, bright)
+=============================== */
 .home {
   height: 100svh; height: 100dvh; height: 100vh;
   display: grid;
-  grid-template-rows: 1fr auto;      /* center block + bottom quote */
-  padding: max(10px, env(safe-area-inset-top)) 16px max(10px, env(safe-area-inset-bottom));
+  grid-template-rows: 1fr auto;  /* center + bottom quote bar */
+  padding: max(8px, env(safe-area-inset-top)) 16px max(58px, env(safe-area-inset-bottom));
 }
-
 .home-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 14px;
-  width: min(940px, 92vw);
-  margin: 0 auto;
-  padding: 22px 22px 26px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; text-align: center;
+  width: min(520px, 92vw); margin: 0 auto;
 }
-
-.logo { width: clamp(90px, 12vw, 128px); height: auto; }
+.logo { width: clamp(92px, 12vw, 120px); height: auto; filter: drop-shadow(0 6px 14px rgba(0,0,0,.25)); }
 .title {
+  color: #ffffff;
   font-weight: 800;
   letter-spacing: .2px;
-  font-size: clamp(1.5rem, 3.6vw, 2.1rem);
-  color: white;
-  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+  text-shadow: 0 2px 8px rgba(0,0,0,.22);
+  font-size: clamp(1.6rem, 3.6vw, 2.1rem);
 }
 
-/* Buttons cluster */
+/* ================================
+   Neo-glass Buttons
+=============================== */
 .buttons {
-  display: flex; flex-direction: column; align-items: stretch;
-  gap: clamp(10px, 2vw, 16px);
-  width: min(500px, 92%);
-  margin-inline: auto;
+  display: flex; flex-direction: column; gap: 14px;
+  width: 100%;
 }
 .button {
   -webkit-tap-highlight-color: transparent;
   appearance: none;
-  border: 1px solid color-mix(in srgb, var(--txt) 18%, transparent);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06)) padding-box,
-    linear-gradient(90deg, color-mix(in srgb, var(--accent) 65%, transparent), color-mix(in srgb, var(--accent-2) 65%, transparent)) border-box;
-  color: white;
-  font-weight: 700;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 16px;
+  color: var(--txt-invert);
+  background: linear-gradient(180deg, var(--glass), rgba(255,255,255,0.28));
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  padding: 16px 20px;
+  font-weight: 800;
   font-size: clamp(1.05rem, 3.2vw, 1.25rem);
-  padding: clamp(14px, 3.2vw, 18px) clamp(18px, 4vw, 22px);
   text-align: center;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(210,32,48,0.24), inset 0 1px 0 rgba(255,255,255,0.12);
-  transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease, filter .18s ease;
+  box-shadow: var(--shadow-soft);
+  text-shadow: 0 2px 8px rgba(0,0,0,.28);
+  overflow: hidden;  /* for glare animation */
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
 }
-.button:focus-visible { outline: none; box-shadow: var(--shadow), var(--ring); }
+.button:focus-visible { outline: none; box-shadow: var(--shadow-strong); }
 .button:hover { transform: translateY(-1px); filter: saturate(1.06); }
-.button:active { transform: translateY(0); box-shadow: 0 6px 16px rgba(210,32,48,0.28) inset; }
+.button:active { transform: translateY(0); }
 
-/* Quote */
-.quote {
-  width: min(940px, 92vw);
-  margin: 0 auto;
-  padding: 12px 16px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--muted) 22%, transparent);
+/* Button border sheen */
+.button::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255,255,255,0.5);
+  pointer-events: none;
 }
-.quote-title {
-  font-size: clamp(.95rem, 2.6vw, 1.05rem);
-  font-weight: 800;
-  letter-spacing: .02em;
-  color: var(--muted);
-  margin: 0 0 4px;
+
+/* Glare sweep (occasionally triggered) */
+.button::after {
+  content: "";
+  position: absolute;
+  top: -20%; left: -40%;
+  width: 40%; height: 140%;
+  transform: skewX(-20deg);
+  background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,.55), rgba(255,255,255,0));
+  opacity: 0; pointer-events: none;
 }
-.quote-text {
-  font-size: clamp(.95rem, 2.6vw, 1.05rem);
-  line-height: 1.35;
+.button.shine::after {
+  animation: glareSweep 1.2s ease forwards;
+}
+@keyframes glareSweep {
+  0%   { transform: translateX(0) skewX(-20deg); opacity: 0; }
+  15%  { opacity: .9; }
+  100% { transform: translateX(260%) skewX(-20deg); opacity: 0; }
 }
 
 /* ================================
-   Overlay + Popup + Page Wipe
-   ================================ */
+   Quote Bar (white across bottom)
+=============================== */
+.quote-bar {
+  position: fixed; left: 0; right: 0;
+  bottom: 0; z-index: 1;
+  background: #ffffff;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding: 10px max(16px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-right));
+  box-shadow: 0 -8px 18px rgba(0,0,0,0.08);
+}
+.quote-inner {
+  display: flex; align-items: baseline; justify-content: center;
+  gap: 10px; flex-wrap: wrap;
+  max-width: 1200px; margin: 0 auto;
+}
+.quote-label {
+  font-weight: 800; color: #333; letter-spacing: .02em;
+}
+.quote-text {
+  color: #444; line-height: 1.35;
+}
+
+/* ================================
+   Overlay & Popup (simple fade/scale)
+=============================== */
+body.no-scroll { overflow: hidden; position: fixed; inset: 0; width: 100%; }
+
 .overlay {
-  position: fixed; inset: 0; z-index: 1000;
+  position: fixed; inset: 0; z-index: 10;
   display: grid; place-items: center;
-  background: color-mix(in srgb, black 35%, transparent);
-  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .28s ease;
+  background: rgba(0,0,0,0.45);
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s ease;
 }
 .overlay.active { opacity: 1; pointer-events: auto; }
 
 .popup {
   width: 94vw;
   height: 94svh; height: 94dvh; height: 94vh;
-  position: relative;
+  border-radius: 18px;
   overflow: hidden;
-  transform: translateY(10px) scale(.98);
+  background: #fff;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+  transform: translateY(8px) scale(.985);
   opacity: 0;
-  transition:
-    opacity .32s cubic-bezier(.2,.8,.2,1),
-    transform .36s cubic-bezier(.2,.8,.2,1);
-  border: 1px solid color-mix(in srgb, white 30%, transparent);
+  transition: opacity .30s cubic-bezier(.2,.8,.2,1), transform .34s cubic-bezier(.2,.8,.2,1);
 }
-.overlay.active .popup {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
+.overlay.active .popup { opacity: 1; transform: translateY(0) scale(1); }
 
-.popup iframe {
-  display: block; width: 100%; height: 100%; border: 0;
-}
+.popup iframe { width: 100%; height: 100%; border: 0; }
 
-/* Close button */
 .overlay-close {
   position: absolute; top: 10px; right: 10px;
   width: 44px; height: 44px; border-radius: 999px;
-  border: 1px solid color-mix(in srgb, white 35%, transparent);
-  background:
-    linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35)) padding-box,
-    linear-gradient(90deg, color-mix(in srgb, var(--accent) 70%, transparent), color-mix(in srgb, var(--accent-2) 70%, transparent)) border-box;
-  color: #fff; font-size: 1.6rem; line-height: 1; cursor: pointer;
+  background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.6);
+  font-size: 1.6rem; line-height: 1; cursor: pointer;
   display: grid; place-items: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.18);
-  transition: transform .18s ease, filter .18s ease;
+  box-shadow: 0 10px 24px rgba(0,0,0,.28);
+  transition: transform .16s ease, filter .16s ease;
 }
-.overlay-close:hover { transform: translateY(-1px); filter: saturate(1.08); }
-.overlay-close:active { transform: translateY(0); }
+.overlay-close:hover { transform: translateY(-1px); filter: saturate(1.06); }
 
-/* Page wipe (accent gradient curtain) */
-.wipe {
-  position: fixed; inset: 0; z-index: 1100;
-  background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  transform: translateY(100%); /* hidden below */
-  will-change: transform;
-  pointer-events: none;
-}
-.wipe.in { animation: wipeIn .55s cubic-bezier(.2,.8,.2,1) forwards; }
-.wipe.out { animation: wipeOut .55s cubic-bezier(.2,.8,.2,1) forwards; }
-@keyframes wipeIn {
-  0% { transform: translateY(100%); }
-  100% { transform: translateY(0%); }
-}
-@keyframes wipeOut {
-  0% { transform: translateY(0%); }
-  100% { transform: translateY(-100%); }
-}
-
-/* Utility */
 .hidden { display: none !important; }
+
+/* Reduced motion: keep it calm */
+@media (prefers-reduced-motion: reduce) {
+  .button, .overlay, .popup { transition: none !important; }
+  .button::after { animation: none !important; }
+}
