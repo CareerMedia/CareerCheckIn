@@ -5,7 +5,7 @@
   <title>Thanks — Closing Soon…</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <script>
-    // Close after 15 seconds
+    // Wait 15 seconds, then tell the kiosk to close the popup
     function sendClose() {
       try {
         window.top.postMessage('kiosk:done', '*');
@@ -35,16 +35,15 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
-    .wrap {
-      width: min(720px, 92vw);
-      text-align: center;
-    }
+    .wrap { width: min(720px, 92vw); text-align: center; }
     .logo {
       width: clamp(80px, 20vw, 140px);
       height: auto;
       display: block;
       margin: 0 auto 12px auto;
     }
+    /* Reserve space so the heading doesn't jump while trying fallbacks */
+    .logo-holder { min-height: 150px; display: grid; place-items: center; }
     h1 {
       margin: 0 0 12px 0;
       font-size: clamp(1.6rem, 4vw, 2.2rem);
@@ -53,28 +52,16 @@
       letter-spacing: .2px;
       color: #111;
     }
-    p {
-      margin: 0 0 10px 0;
-      font-size: clamp(1rem, 2.6vw, 1.05rem);
-      line-height: 1.5;
-      color: #333;
-    }
-    .sig {
-      margin-top: 10px;
-      font-weight: 700;
-      color: #222;
-    }
-    .note {
-      margin-top: 14px;
-      font-size: .95rem;
-      color: #666;
-    }
+    p { margin: 0 0 10px 0; font-size: clamp(1rem, 2.6vw, 1.05rem); line-height: 1.5; color: #333; }
+    .sig { margin-top: 10px; font-weight: 700; color: #222; }
+    .note { margin-top: 14px; font-size: .95rem; color: #666; }
   </style>
 </head>
 <body>
   <main class="wrap" role="main" aria-labelledby="thankyou">
-    <!-- Logo with resilient fallback loader -->
-    <img id="logo" class="logo" alt="CSUN Career Center" />
+    <div class="logo-holder">
+      <img id="logo" class="logo" alt="CSUN Career Center logo" />
+    </div>
 
     <h1 id="thankyou">Thanks! You’re all set.</h1>
     <p>
@@ -88,25 +75,40 @@
   </main>
 
   <script>
-    // Robust logo loader: tries multiple filenames, busts cache, hides on failure
+    // Try your requested path first, then common fallbacks. Never hide the logo.
     (function () {
-      const cacheBust = `v=${Date.now()}`;
+      const bust = `?v=${Date.now()}`;
       const candidates = [
-        `./assets/logo-main.svg?${cacheBust}`,
+        `.assets/logo-main.svg${bust}`,  // your requested format
+        `.assets/logo-main.svg`,
+        `./assets/logo-main.svg${bust}`,
         `./assets/logo-main.svg`,
-        `./assets/logo.svg?${cacheBust}`,
-        `./assets/logo.svg`,
-        `./assets/logo.png?${cacheBust}`,
-        `./assets/logo.png`
+        `assets/logo-main.svg${bust}`,
+        `assets/logo-main.svg`,
+        `/assets/logo-main.svg${bust}`,
+        `/assets/logo-main.svg`,
+        `./assets/logo.svg${bust}`,
+        `assets/logo.svg${bust}`,
+        `./assets/logo.png${bust}`,
+        `assets/logo.png${bust}`
       ];
       const img = document.getElementById('logo');
+      let i = 0;
 
-      function trySrc(i) {
-        if (i >= candidates.length) { img.style.display = 'none'; return; }
-        img.onerror = () => trySrc(i + 1);
-        img.src = candidates[i];
+      function tryNext() {
+        if (i >= candidates.length) {
+          // leave alt text visible; don't hide the image
+          console.warn('Logo not found at any candidate path.');
+          return;
+        }
+        const src = candidates[i++];
+        const test = new Image();
+        test.onload = () => { img.src = src; };
+        test.onerror = tryNext;
+        test.src = src;
       }
-      trySrc(0);
+
+      tryNext();
     })();
   </script>
 </body>
