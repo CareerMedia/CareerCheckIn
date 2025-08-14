@@ -12,7 +12,7 @@
         window.top.postMessage({ type: 'kiosk:done' }, '*');
       } catch (e) {}
     }
-    window.addEventListener('DOMContentLoaded', () => setTimeout(sendClose, 15000));
+    window.addEventListener('DOMContentLoaded', () => setTimeout(sendClose, 5000));
   </script>
   <style>
     :root {
