@@ -12,9 +12,7 @@
         window.top.postMessage({ type: 'kiosk:done' }, '*');
       } catch (e) {}
     }
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(sendClose, 15000);
-    });
+    window.addEventListener('DOMContentLoaded', () => setTimeout(sendClose, 15000));
   </script>
   <style>
     :root {
@@ -31,9 +29,9 @@
       justify-items: center;       /* horizontal center */
       padding: var(--pad);
       background: #fff;
-      text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
     .wrap { width: min(720px, 92vw); text-align: center; }
     .logo {
@@ -42,8 +40,6 @@
       display: block;
       margin: 0 auto 12px auto;
     }
-    /* Reserve space so the heading doesn't jump while trying fallbacks */
-    .logo-holder { min-height: 150px; display: grid; place-items: center; }
     h1 {
       margin: 0 0 12px 0;
       font-size: clamp(1.6rem, 4vw, 2.2rem);
@@ -59,9 +55,10 @@
 </head>
 <body>
   <main class="wrap" role="main" aria-labelledby="thankyou">
-    <div class="logo-holder">
-      <img id="logo" class="logo" alt="CSUN Career Center logo" />
-    </div>
+    <!-- IMPORTANT: this file is in /assets, so use the filename only -->
+    <img class="logo" src="logo-main.svg"
+         alt="CSUN Career Center"
+         onerror="this.onerror=null; this.src='logo.svg';" />
 
     <h1 id="thankyou">Thanks! You’re all set.</h1>
     <p>
@@ -73,43 +70,5 @@
     <p class="sig">The CSUN Career Center</p>
     <p class="note">This window will close automatically in about 15 seconds.</p>
   </main>
-
-  <script>
-    // Try your requested path first, then common fallbacks. Never hide the logo.
-    (function () {
-      const bust = `?v=${Date.now()}`;
-      const candidates = [
-        `.assets/logo-main.svg${bust}`,  // your requested format
-        `.assets/logo-main.svg`,
-        `./assets/logo-main.svg${bust}`,
-        `./assets/logo-main.svg`,
-        `assets/logo-main.svg${bust}`,
-        `assets/logo-main.svg`,
-        `/assets/logo-main.svg${bust}`,
-        `/assets/logo-main.svg`,
-        `./assets/logo.svg${bust}`,
-        `assets/logo.svg${bust}`,
-        `./assets/logo.png${bust}`,
-        `assets/logo.png${bust}`
-      ];
-      const img = document.getElementById('logo');
-      let i = 0;
-
-      function tryNext() {
-        if (i >= candidates.length) {
-          // leave alt text visible; don't hide the image
-          console.warn('Logo not found at any candidate path.');
-          return;
-        }
-        const src = candidates[i++];
-        const test = new Image();
-        test.onload = () => { img.src = src; };
-        test.onerror = tryNext;
-        test.src = src;
-      }
-
-      tryNext();
-    })();
-  </script>
 </body>
 </html>
