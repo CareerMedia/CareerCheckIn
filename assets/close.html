@@ -1,12 +1,93 @@
 <!doctype html>
-<meta charset="utf-8">
-<title>Closing…</title>
-<script>
-  try {
-    window.top.postMessage('kiosk:done', '*');
-    window.top.postMessage({ type: 'kiosk:done' }, '*');
-  } catch (e) {}
-</script>
-<body style="font-family: system-ui; text-align:center; padding:24px;">
-  Thanks! You’re all set.
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Thanks — Closing Soon…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <script>
+    // Wait 15 seconds, then tell the kiosk to close the popup
+    function sendClose() {
+      try {
+        window.top.postMessage('kiosk:done', '*');
+        window.top.postMessage({ type: 'kiosk:done' }, '*');
+      } catch (e) {}
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(sendClose, 15000); // 15,000 ms
+    });
+  </script>
+  <style>
+    :root {
+      --pad: max(20px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+             max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, "SF Pro Text", Segoe UI, Roboto, sans-serif;
+      color: #111;
+      display: grid;
+      align-items: center;         /* vertical center */
+      justify-items: center;       /* horizontal center */
+      padding: var(--pad);
+      background: #fff;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .wrap {
+      width: min(720px, 92vw);
+      text-align: center;
+    }
+    .logo {
+      width: clamp(80px, 20vw, 140px);
+      height: auto;
+      display: block;
+      margin: 0 auto 12px auto;
+    }
+    h1 {
+      margin: 0 0 12px 0;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: .2px;
+      color: #111;
+    }
+    p {
+      margin: 0 0 10px 0;
+      font-size: clamp(1rem, 2.6vw, 1.05rem);
+      line-height: 1.5;
+      color: #333;
+    }
+    .sig {
+      margin-top: 10px;
+      font-weight: 700;
+      color: #222;
+    }
+    .note {
+      margin-top: 14px;
+      font-size: .95rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main" aria-labelledby="thankyou">
+    <img
+      class="logo"
+      src="./assets/logo-main.svg"
+      alt="CSUN Career Center"
+      onerror="this.onerror=null; this.src='./assets/logo.png';"
+    />
+    <h1 id="thankyou">Thanks! You’re all set.</h1>
+    <p>
+      Thank you for connecting with the CSUN Career Center! We’re so glad you took the time to share with us, and we want you to know that you’re not on this journey alone. Every interaction you have with us—whether it’s filling out a form, attending an event, or meeting with our team—is a step toward building the future you envision.
+    </p>
+    <p>
+      Our mission is to help you rise as a Matador, equipping you with the tools, resources, and support to confidently pursue your career goals. No matter where you are in your journey—just starting out, exploring options, or ready to take that next big leap—we’re here to guide, encourage, and celebrate your success. Your growth is our goal, and we can’t wait to see where your ambitions take you.
+    </p>
+    <p class="sig">The CSUN Career Center</p>
+    <p class="note">This window will close automatically in about 15 seconds.</p>
+  </main>
 </body>
+</html>
