@@ -5,7 +5,7 @@
   <title>Thanks — Closing Soon…</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <script>
-    // Wait 15 seconds, then tell the kiosk to close the popup
+    // Close after 15 seconds
     function sendClose() {
       try {
         window.top.postMessage('kiosk:done', '*');
@@ -13,7 +13,7 @@
       } catch (e) {}
     }
     window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(sendClose, 15000); // 15,000 ms
+      setTimeout(sendClose, 15000);
     });
   </script>
   <style>
@@ -73,12 +73,9 @@
 </head>
 <body>
   <main class="wrap" role="main" aria-labelledby="thankyou">
-    <img
-      class="logo"
-      src="./assets/logo-main.svg"
-      alt="CSUN Career Center"
-      onerror="this.onerror=null; this.src='./assets/logo.png';"
-    />
+    <!-- Logo with resilient fallback loader -->
+    <img id="logo" class="logo" alt="CSUN Career Center" />
+
     <h1 id="thankyou">Thanks! You’re all set.</h1>
     <p>
       Thank you for connecting with the CSUN Career Center! We’re so glad you took the time to share with us, and we want you to know that you’re not on this journey alone. Every interaction you have with us—whether it’s filling out a form, attending an event, or meeting with our team—is a step toward building the future you envision.
@@ -89,5 +86,28 @@
     <p class="sig">The CSUN Career Center</p>
     <p class="note">This window will close automatically in about 15 seconds.</p>
   </main>
+
+  <script>
+    // Robust logo loader: tries multiple filenames, busts cache, hides on failure
+    (function () {
+      const cacheBust = `v=${Date.now()}`;
+      const candidates = [
+        `assets/logo-main.svg?${cacheBust}`,
+        `assets/logo-main.svg`,
+        `assets/logo.svg?${cacheBust}`,
+        `assets/logo.svg`,
+        `assets/logo.png?${cacheBust}`,
+        `assets/logo.png`
+      ];
+      const img = document.getElementById('logo');
+
+      function trySrc(i) {
+        if (i >= candidates.length) { img.style.display = 'none'; return; }
+        img.onerror = () => trySrc(i + 1);
+        img.src = candidates[i];
+      }
+      trySrc(0);
+    })();
+  </script>
 </body>
 </html>
