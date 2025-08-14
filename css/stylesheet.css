@@ -170,7 +170,7 @@ body {
 
 /* Logo + title */
 .logo {
-  width: clamp(92px, 12vw, 120px);
+  width: clamp(140px, 22vw, 260px);
   height: auto;
   filter: drop-shadow(0 6px 14px rgba(0,0,0,.25));
   margin: 0;
