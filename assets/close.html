@@ -34,12 +34,6 @@
       text-rendering: optimizeLegibility;
     }
     .wrap { width: min(720px, 92vw); text-align: center; }
-    .logo {
-      width: clamp(80px, 20vw, 140px);
-      height: auto;
-      display: block;
-      margin: 0 auto 12px auto;
-    }
     h1 {
       margin: 0 0 12px 0;
       font-size: clamp(1.6rem, 4vw, 2.2rem);
@@ -55,10 +49,14 @@
 </head>
 <body>
   <main class="wrap" role="main" aria-labelledby="thankyou">
-    <!-- IMPORTANT: this file is in /assets, so use the filename only -->
-    <img class="logo" src="logo-main.svg"
-         alt="CSUN Career Center"
-         onerror="this.onerror=null; this.src='logo.svg';" />
+    <!-- Bigger logo (inline style so we don't touch any stylesheet) -->
+    <!-- NOTE: close.html is in /assets, so use the filename only -->
+    <img
+      src="logo-main.svg"
+      alt="CSUN Career Center"
+      onerror="this.onerror=null; this.src='logo.svg';"
+      style="width: clamp(180px, 28vw, 340px); height: auto; display: block; margin: 0 auto 14px;"
+    />
 
     <h1 id="thankyou">Thanks! You’re all set.</h1>
     <p>
